@@ -5,53 +5,53 @@ namespace Complete
 {
     public class AgentHealth : MonoBehaviour
     {
-        public float m_StartingHealth = 100f;               // The amount of health each tank starts with.
-        public Slider m_Slider;                             // The slider to represent how much health the tank currently has.
-        public Image m_FillImage;                           // The image component of the slider.
-        public Color m_FullHealthColor = Color.green;       // The color the health bar will be when on full health.
-        public Color m_ZeroHealthColor = Color.red;         // The color the health bar will be when on no health.
-        public GameObject m_ExplosionPrefab;                // A prefab that will be instantiated in Awake, then used whenever the tank dies.
+        public float m_StartingHealth = 100f;               // variable de la vida de cada de cada tanque empieza   
+        public Slider m_Slider;                             // la barra que lo respresenta
+        public Image m_FillImage;                           // la imagen del slider
+        public Color m_FullHealthColor = Color.green;       // color de mucha vida
+        public Color m_ZeroHealthColor = Color.red;         // color de poca vida
+        public GameObject m_ExplosionPrefab;                // Prefab de la explosion de un tanque.
         
         
-        private AudioSource m_ExplosionAudio;               // The audio source to play when the tank explodes.
-        private ParticleSystem m_ExplosionParticles;        // The particle system the will play when the tank is destroyed.
-        private float m_CurrentHealth;                      // How much health the tank currently has.
-        private bool m_Dead;                                // Has the tank been reduced beyond zero health yet?
+        private AudioSource m_ExplosionAudio;               // el audio del tanque
+        private ParticleSystem m_ExplosionParticles;        // particalas o efecto de las mismas
+        private float m_CurrentHealth;                      // Vida restante
+        private bool m_Dead;                                // si el tanque no tiene vida
 
 
         private void Awake ()
         {
-            // Instantiate the explosion prefab and get a reference to the particle system on it.
+            // instancia las particulas a la muerte del tanque(explosion)
             m_ExplosionParticles = Instantiate (m_ExplosionPrefab).GetComponent<ParticleSystem> ();
 
-            // Get a reference to the audio source on the instantiated prefab.
+            // Audio de la explosion instanciada
             m_ExplosionAudio = m_ExplosionParticles.GetComponent<AudioSource> ();
 
-            // Disable the prefab so it can be activated when it's required.
+            // despliega el prefab de la explosion
             m_ExplosionParticles.gameObject.SetActive (false);
         }
 
 
         private void OnEnable()
         {
-            // When the tank is enabled, reset the tank's health and whether or not it's dead.
+            // Resetea la vida y detemina si esta muerto o no
             m_CurrentHealth = m_StartingHealth;
             m_Dead = false;
 
-            // Update the health slider's value and color.
+            // Actualiza la vida del tauqe en el slider
             SetHealthUI();
         }
 
 
         public void TakeDamage (float amount)
         {
-            // Reduce current health by the amount of damage done.
+            // Rreduce la vida por el daño recibido
             m_CurrentHealth -= amount;
 
-            // Change the UI elements appropriately.
+            // Cmbia los elementos del Ui
             SetHealthUI ();
 
-            // If the current health is at or below zero and it has not yet been registered, call OnDeath.
+            // Si la vida es menos o es 0 llama al metodo OnDeath
             if (m_CurrentHealth <= 0f && !m_Dead)
             {
                 OnDeath ();
@@ -61,30 +61,29 @@ namespace Complete
 
         private void SetHealthUI ()
         {
-            // Set the slider's value appropriately.
+            // actualiza la vida en el slider
             m_Slider.value = m_CurrentHealth;
 
-            // Interpolate the color of the bar between the choosen colours based on the current percentage of the starting health.
+            // interpreta que color debe estar dependiendo de la vida
             m_FillImage.color = Color.Lerp (m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
         }
 
 
         private void OnDeath ()
         {
-            // Set the flag so that this function is only called once.
             m_Dead = true;
 
-            // Move the instantiated explosion prefab to the tank's position and turn it on.
+            // Mueve el prefab de la explosion a la posicion del tanque
             m_ExplosionParticles.transform.position = transform.position;
             m_ExplosionParticles.gameObject.SetActive (true);
 
-            // Play the particle system of the tank exploding.
+            // ejecutas las particulas de la explosion
             m_ExplosionParticles.Play ();
 
-            // Play the tank explosion sound effect.
+            // ejecuta el sonido de la explosion
             m_ExplosionAudio.Play();
 
-            // Turn the tank off.
+            // Apaga el tanque o lo hace desaparecer
             gameObject.SetActive (false);
         }
     }
